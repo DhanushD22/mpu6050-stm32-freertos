@@ -1,4 +1,4 @@
-# STM32 MPU6050 IMU with FreeRTOS (Weeks 5–6)
+# STM32 MPU6050 IMU with FreeRTOS 
 
 ## Overview
 This project demonstrates the complete bring-up of an MPU-6050 IMU on an 
@@ -6,12 +6,6 @@ STM32
 Nucleo-G491RE board, progressing from bare-metal sensor access to a 
 stable,
 reset-safe FreeRTOS-based task architecture.
-
-The work covered here corresponds to **Weeks 5 and 6** of an embedded 
-systems
-learning roadmap, with emphasis on **real hardware**, **real-time 
-design**, and
-**production-quality RTOS practices**.
 
 ---
 
@@ -31,7 +25,7 @@ design**, and
 
 ---
 
-## Week 5 — Bare-Metal MPU-6050 Bring-up
+## Bare-Metal MPU-6050 Bring-up
 
 ### Objectives
 - Verify I2C communication on real hardware
@@ -55,7 +49,7 @@ design**, and
 
 ---
 
-## Week 6 — FreeRTOS Integration
+## FreeRTOS Integration
 
 ### Objectives
 - Re-architect the bare-metal design into a multitasking RTOS system
@@ -115,10 +109,7 @@ ROLL=-10.87 deg | PITCH=-1.40 deg
 - How reset behavior exposes real RTOS bugs
 
 ---
-
-## Status
-✅ Week 5: Completed  
-✅ Week 6: Completed  
+ 
 
 This repository represents a **stable baseline** for further work on 
 sensor
@@ -126,7 +117,7 @@ fusion, real-time behavior, and CAN-based communication.
 
 ---
 
-## Next Steps (Week 7 Preview)
+## Next Steps
 - Fixed-rate IMU sampling using `vTaskDelayUntil`
 - Gyroscope integration and yaw drift analysis
 - Complementary filter (accelerometer + gyroscope fusion)
