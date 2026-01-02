@@ -63,9 +63,9 @@ reset-safe FreeRTOS-based task architecture.
 ### Task Architecture
 
 IMU_Task
-↓ (Queue)
+-> (Queue)
 Orientation_Task
-↓ (Queue)
+-> (Queue)
 Logger_Task
 
 
