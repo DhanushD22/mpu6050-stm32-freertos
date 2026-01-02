@@ -1,0 +1,30 @@
+# ===============================
+# STM32CubeIDE generated folders
+# ===============================
+Drivers/
+Middlewares/
+
+# Build outputs
+Debug/
+Release/
+build/
+
+# Object & binary files
+*.o
+*.elf
+*.map
+*.bin
+*.hex
+
+# CubeIDE metadata
+.cproject
+.project
+.mxproject
+.osx.project
+.settings/
+*.launch
+
+# OS / Editor junk
+.DS_Store
+.vscode/
+
