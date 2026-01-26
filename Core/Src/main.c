@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * Copyright (c) 2025 STMicroelectronics.
+  * Copyright (c) 2026 STMicroelectronics.
   * All rights reserved.
   *
   * This software is licensed under terms that can be found in the LICENSE file
@@ -25,7 +25,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include <math.h>
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -35,14 +37,11 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define MPU6050_ADDR      0x68   // AD0 tied to GND
-#define WHO_AM_I_REG      0x75
-#define PWR_MGMT_1_REG    0x6B
-#define ACCEL_XOUT_H      0x3B
-#define GYRO_XOUT_H       0x43
-
-
-
+#define MPU6050_ADDR 		0x68 // AD0 tied to GND
+#define WHO_AM_I_REG 		0x75
+#define PWR_MGMT_1_REG 		0x6B
+#define ACCEL_XOUT_H 		0x3B
+#define GYRO_XOUT_H 		0x43
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,6 +54,7 @@
 COM_InitTypeDef BspCOMInit;
 
 /* USER CODE BEGIN PV */
+
 QueueHandle_t imuQueue;
 QueueHandle_t orientQueue;
 SemaphoreHandle_t uartMutex;
@@ -70,12 +70,14 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
 int _write(int file, char *ptr, int len)
 {
     HAL_UART_Transmit(&huart2, (uint8_t *)ptr, len, HAL_MAX_DELAY);
     return len;
 }
 
+// IMU Task - Read raw sensor data
 void IMU_Task(void *argument)
 {
     imu_data_t imu;
@@ -113,6 +115,8 @@ void IMU_Task(void *argument)
     }
 }
 
+// Orinetation task - calculating roll and pitch
+
 void Orientation_Task(void *argument)
 {
     imu_data_t imu;
@@ -135,6 +139,8 @@ void Orientation_Task(void *argument)
     }
 }
 
+// Logger task - print on serial terminal
+
 void Logger_Task(void *argument)
 {
     orientation_t orient;
@@ -150,7 +156,6 @@ void Logger_Task(void *argument)
         	           orient.pitch_deg);
         	    xSemaphoreGive(uartMutex);
         	}
-
         }
     }
 }
@@ -190,45 +195,58 @@ int main(void)
   MX_I2C1_Init();
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
+  printf("Scanning I2C bus...\r\n");
+
+  for (uint8_t addr = 1; addr < 127; addr++)
+  {
+	  if (HAL_I2C_IsDeviceReady(&hi2c1, addr << 1, 1, 10) == HAL_OK)
+	  {
+		  printf("Found device at 0x%02X\r\n", addr);
+	  }
+  }
 
   printf("UART ALIVE\r\n");
 
   uint8_t data = 0x00;
   uint8_t who_am_i = 0;
-  /* Wake up MPU */
-  HAL_I2C_Mem_Write(
-      &hi2c1,
-      MPU6050_ADDR << 1,
-      PWR_MGMT_1_REG,
-      I2C_MEMADD_SIZE_8BIT,
-      &data,
-      1,
-      100
-  );
-
-  /* IMPORTANT delay */
+  HAL_I2C_Mem_Write(&hi2c1, MPU6050_ADDR << 1,
+                    PWR_MGMT_1_REG,
+                    I2C_MEMADD_SIZE_8BIT,
+                    &data, 1, 100);
   HAL_Delay(100);
 
-  /* Read WHO_AM_I */
   HAL_I2C_Mem_Read(
-      &hi2c1,
-      MPU6050_ADDR << 1,
-      WHO_AM_I_REG,
-      I2C_MEMADD_SIZE_8BIT,
-      &who_am_i,
-      1,
-      100
-  );
-
+       &hi2c1,
+       MPU6050_ADDR << 1,
+       WHO_AM_I_REG,
+       1,
+       &who_am_i,
+       1,
+       HAL_MAX_DELAY
+   );
   printf("WHO_AM_I = 0x%02X\r\n", who_am_i);
-
-
-
   /* USER CODE END 2 */
 
   /* Init scheduler */
   osKernelInitialize();  /* Call init function for freertos objects (in cmsis_os2.c) */
   MX_FREERTOS_Init();
+
+//  /* Initialize led */
+//  BSP_LED_Init(LED_GREEN);
+//
+//  /* Initialize USER push-button, will be used to trigger an interrupt each time it's pressed.*/
+//  BSP_PB_Init(BUTTON_USER, BUTTON_MODE_EXTI);
+//
+//  /* Initialize COM1 port (115200, 8 bits (7-bit data + 1 stop bit), no parity */
+//  BspCOMInit.BaudRate   = 115200;
+//  BspCOMInit.WordLength = COM_WORDLENGTH_8B;
+//  BspCOMInit.StopBits   = COM_STOPBITS_1;
+//  BspCOMInit.Parity     = COM_PARITY_NONE;
+//  BspCOMInit.HwFlowCtl  = COM_HWCONTROL_NONE;
+//  if (BSP_COM_Init(COM1, &BspCOMInit) != BSP_ERROR_NONE)
+//  {
+//    Error_Handler();
+//  }
 
   /* Start scheduler */
   osKernelStart();
@@ -239,7 +257,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
     /* USER CODE END WHILE */
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

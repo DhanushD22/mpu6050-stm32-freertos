@@ -25,9 +25,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "main.h"
+
 #include "queue.h"
 #include "semphr.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -50,24 +51,28 @@
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
+
+
+
 //osThreadId_t defaultTaskHandle;
+//
 //const osThreadAttr_t defaultTask_attributes = {
 //  .name = "defaultTask",
 //  .priority = (osPriority_t) osPriorityNormal,
 //  .stack_size = 128 * 4
 //};
 
+
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-/* USER CODE BEGIN FunctionPrototypes */
+
 void IMU_Task(void *argument);
 void Orientation_Task(void *argument);
 void Logger_Task(void *argument);
-/* USER CODE END FunctionPrototypes */
 
 /* USER CODE END FunctionPrototypes */
 
-void StartDefaultTask(void *argument);
+//void StartDefaultTask(void *argument);
 
 void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
 
@@ -78,21 +83,23 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-	 imuQueue = xQueueCreate(4, sizeof(imu_data_t));
-	 configASSERT(imuQueue != NULL);
 
-	 orientQueue = xQueueCreate(4, sizeof(orientation_t));
-	 configASSERT(orientQueue != NULL);
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-	 uartMutex = xSemaphoreCreateMutex();
-	 configASSERT(uartMutex != NULL);
-
+  /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
+
   /* add semaphores, ... */
+
+	uartMutex = xSemaphoreCreateMutex();
+
+	if (uartMutex == NULL)
+	{
+	    Error_Handler(); // extremely important in real systems
+	}
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
@@ -100,14 +107,35 @@ void MX_FREERTOS_Init(void) {
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-	 configASSERT(xTaskCreate(IMU_Task, "IMU", 512, NULL, osPriorityHigh, NULL));
-	 configASSERT(xTaskCreate(Orientation_Task, "ORIENT", 512, NULL, osPriorityNormal, NULL));
-	 configASSERT(xTaskCreate(Logger_Task, "LOGGER", 512, NULL, osPriorityLow, NULL));
+  /* add queues, ... */
+
+	//Queues
+	imuQueue = xQueueCreate(4, sizeof(imu_data_t));
+	configASSERT(imuQueue != NULL);
+
+	orientQueue = xQueueCreate(4, sizeof(orientation_t));
+	configASSERT(orientQueue != NULL);
+
+	uartMutex = xSemaphoreCreateMutex();
+	configASSERT(uartMutex != NULL);
+
+	configASSERT(xTaskCreate(IMU_Task, "IMU",
+	                         512, NULL, tskIDLE_PRIORITY + 3, NULL) == pdPASS);
+
+	configASSERT(xTaskCreate(Orientation_Task, "ORIENT",
+	                         512, NULL, tskIDLE_PRIORITY + 2, NULL) == pdPASS);
+
+	configASSERT(xTaskCreate(Logger_Task, "LOGGER",
+	                         512, NULL, tskIDLE_PRIORITY + 1, NULL) == pdPASS);
+
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of defaultTask */
-// defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
+
+  /* creation of defaultTask */  // -> created by CubeMX
+  //defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -120,21 +148,26 @@ void MX_FREERTOS_Init(void) {
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
-
-void StartDefaultTask(void *argument)
-{
-  for (;;)
-  {
-    osDelay(1000);
-  }
-}
-
 /**
   * @brief  Function implementing the defaultTask thread.
   * @param  argument: Not used
   * @retval None
   */
 /* USER CODE END Header_StartDefaultTask */
+
+
+//void StartDefaultTask(void *argument)
+//{
+//  /* USER CODE BEGIN StartDefaultTask */
+//  /* Infinite loop */
+//  for(;;)
+//  {
+//    osDelay(1);
+//  }
+//  /* USER CODE END StartDefaultTask */
+//}
+
+
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
